@@ -10,7 +10,7 @@ A full-stack RAG (Retrieval-Augmented Generation) pipeline that ingests any docu
 
 1. Paste any documentation URL (e.g. React docs, FastAPI docs, Python docs) or upload a PDF
 2. The backend scrapes/extracts, chunks, embeds, and stores the content in a vector database
-3. Ask questions in plain English — the app retrieves the most relevant chunks and generates a grounded answer using Gemini
+3. Ask questions in plain English — the app retrieves the most relevant chunks and generates a grounded answer using Gemini with citation
 
 ---
 
