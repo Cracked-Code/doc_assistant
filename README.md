@@ -20,7 +20,7 @@ A full-stack RAG (Retrieval-Augmented Generation) pipeline that ingests any docu
 |-------|-----------|
 | Frontend | Next.js, TypeScript, Tailwind CSS |
 | Backend | FastAPI, Python |
-| LLM | Google Gemini (`gemini-3.1-flash-lite`) |
+| LLM | Google Gemini (`gemini-2.5-flash`) |
 | Embeddings | Google Gemini (`gemini-embedding-001`, 768 dimensions) |
 | Vector DB | Supabase + pgvector |
 | Scraping | BeautifulSoup, Requests, Playwright (local JS-rendered pages) |
