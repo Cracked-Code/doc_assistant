@@ -8,7 +8,9 @@ export default function Home() {
   const [loadingIngest, setLoadingIngest] = useState(false)
   const [loadingQuery, setLoadingQuery] = useState(false)
   const [ingestStatus, setIngestStatus] = useState("")
-
+  const [file, setFile] = useState<File | null>(null)
+  const [loadingUpload, setLoadingUpload] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState("")
   async function submitQuery(query : string) {
     console.log("Query recieved : " , {query} )
     if (!query.trim()) return
@@ -39,7 +41,26 @@ export default function Home() {
     return console.log(data)
   }
 
-    return (
+  async function uploadDoc() {
+    if (!file) return
+    const formData = new FormData()
+    formData.append("file", file)
+    setLoadingUpload(true)
+    try {
+        const res = await fetch("http://127.0.0.1:8000/upload", {
+            method: "POST",
+            body: formData
+        })
+        const data = await res.json()
+        setUploadStatus(data.status === "success" ? "✓ Document loaded" : "⚠ Something went wrong")
+    } catch (e) {
+        setUploadStatus("⚠ Could not reach server ERROR 03")
+    } finally {
+        setLoadingUpload(false)
+    }
+  }
+
+  return (
     <main style={{
       minHeight: "100vh",
       backgroundColor: "#0A0F1C",
@@ -112,7 +133,61 @@ export default function Home() {
             >
               {loadingIngest ? "Loading..." : "Load Docs"}
             </button>
+
+            {/*Upload Button */}
+            {/* Hidden file input */}
+            <input
+              type="file"
+              accept=".pdf"
+              id="pdf-upload"
+              style={{ display: "none" }}
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+
+            {/* Custom styled label that triggers the input */}
+            <label
+              htmlFor="pdf-upload"
+              style={{
+                backgroundColor: "#1E293B",
+                color: "#94A3B8",
+                border: "1px solid #334155",
+                borderRadius: "6px",
+                padding: "0.6rem 1.25rem",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {file ? file.name : "Choose PDF"}
+            </label>
+            <button
+              onClick={() => uploadDoc()}
+              disabled={loadingUpload || !file}
+              style={{
+                backgroundColor: loadingUpload || !file ? "#374151" : "#6366F1",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                padding: "0.6rem 1.25rem",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                cursor: loadingUpload || !file ? "not-allowed" : "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {loadingUpload ? "Uploading..." : "Upload PDF"}
+            </button>
           </div>
+          {uploadStatus && (
+              <p style={{
+                marginTop: "0.5rem",
+                fontSize: "0.8rem",
+                color: uploadStatus.startsWith("✓") ? "#34D399" : "#F87171",
+              }}>
+                {uploadStatus}
+              </p>
+          )}
           {ingestStatus && (
             <p style={{
               marginTop: "0.5rem",

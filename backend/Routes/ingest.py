@@ -5,10 +5,11 @@ import os
 import google.genai as genai
 from google.genai import types
 from supabase import create_client
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
 from pydantic import BaseModel
 import nltk
-
+import pdfplumber
+import io
 
 try:
     nltk.data.find('tokenizers/punkt_tab')
@@ -108,7 +109,7 @@ def embed_chunk(chunk) :
     return result.embeddings[0].values
 
 
-def store_chunk(url,chunk, embed_value) :
+def store_chunk(chunk, embed_value,url = None) :
     supabase.table("documents").insert(
         {"url" : url,
         "chunk_text" : chunk,
@@ -128,8 +129,15 @@ def ingest_url(url) :
     chunks = chunk_text_v2(text)
     for chunk in chunks :
         embed_chunk_val = embed_chunk(chunk)
-        store_chunk(url, chunk, embed_chunk_val)
+        store_chunk(chunk, embed_chunk_val,url)
  
+def extract_pdf(contents: bytes) -> str:
+    text = ""
+    with pdfplumber.open(io.BytesIO(contents)) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() or ""
+    return text
+
 #-----------------------------------------------------------------------------------------------------
 
 class IngestRequest(BaseModel) :
@@ -144,3 +152,17 @@ def ingest(request:IngestRequest) :
         return {"status" : "success"}
     except Exception as e :
         return {"status" : f"error_code 01 : {e}" ,}
+
+@router1.post("/upload")
+async def upload(file : UploadFile= File(...)):
+    try :
+        contents = await file.read()
+        result = extract_pdf(contents)
+        chunks = chunk_text_v2(result)
+        for chunk in chunks :
+            embed_chunk_val = embed_chunk(chunk)
+            store_chunk(chunk, embed_chunk_val)
+
+        return {"status": "success"}
+    except Exception as e :
+        return {"status" : f"error_code 02 : {e}"}
