@@ -38,18 +38,19 @@ def answer(query_embeded) :
     return db_embed_values
 
 def refine_answer(value) :
-    refined_answer = {}
+    refined_answer = []
     for index,chunk in enumerate(value) :
-        refined_answer[index] = f" Chunk : {chunk['chunk_text']}, url : {chunk['url']}"
+        refined_answer.append( f"[{index + 1}] Source : {chunk['url']}\nContent : {chunk['chunk_text']}" )
     
-    return refined_answer
+    return "\n\n".join(refined_answer)
 
 def llm_answer(query) :
     try :
         embed = query_embed(query)
         solution = answer(embed)
         clean_solution = refine_answer(solution.data)
-        prompt = f""" Your job is to answer the users query to your best abilites using additonal information provided. Respond in plain text only. Do not use markdown, asterisks, or any special formatting.
+        prompt = f""" Your job is to answer the users question to your best abilites using additonal information provided. Respond in plain text only. Do not use markdown, asterisks, or any special formatting.
+        At the end of your answer, cite your sources with the full URL like: "Sources: https://..." If they all come from the same source then just list it once.
         Here is the additonal info : {clean_solution}.
         Here is the user's query : {query}
         """

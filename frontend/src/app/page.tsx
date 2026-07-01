@@ -47,7 +47,7 @@ export default function Home() {
     formData.append("file", file)
     setLoadingUpload(true)
     try {
-        const res = await fetch("http://127.0.0.1:8000/upload", {
+        const res = await fetch("https://doc-assistant-ld52.onrender.com/upload", {
             method: "POST",
             body: formData
         })
