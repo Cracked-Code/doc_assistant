@@ -8,7 +8,7 @@ export default function Home() {
 
   async function submitQuery(query : string) {
     console.log("Query recieved : " , {query} )
-    const res = await fetch("https://doc-assistant-ld52.onrender.com/query",{
+    const res = await fetch("http://127.0.0.1:8000/query",{
       method : "POST",
       headers : {'Content-Type' : "application/json"},
       body : JSON.stringify({query:query})
@@ -20,7 +20,7 @@ export default function Home() {
 
   async function submitUrl(url : string) {
     console.log("Url Recieved")
-    const res =  await fetch("https://doc-assistant-ld52.onrender.com/ingest",{
+    const res =  await fetch("http://127.0.0.1:8000/ingest",{
       method : "POST",
       headers : {'Content-Type' : "application/json"},
       body : JSON.stringify({url:url})
